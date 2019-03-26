@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # params
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_name', default='model.pb', help='path of the model file (.pb)')
@@ -27,7 +28,7 @@ def main():
     image = [tf.image.decode_png(image, channels=3, dtype=tf.uint8)]
     image = tf.cast(image, tf.float32)
     
-    with tf.gfile.GFile(args.model_name, 'rb') as f:
+    with tf.gfile.GFile("4pp_eusr_pirm.pb", 'rb') as f:
       model_graph_def = tf.GraphDef()
       model_graph_def.ParseFromString(f.read())
     
