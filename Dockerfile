@@ -12,8 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #RUN apt-get install python3
 
 # install the most up to date version of python3 package manager
-RUN pip3 install --upgrade pip tensorflow
+RUN apt-get install libjpeg-dev -y
+RUN pip3 install freetype-py
+#RUN pip3 install littlecms
 
+RUN pip3 install Pillow
 # core python3 modules
 RUN pip3 --no-cache-dir install \
     backports.weakref==1.0rc1 \
@@ -27,7 +30,6 @@ RUN pip3 --no-cache-dir install \
     networkx==1.11 \
     numpy==1.13.3 \
     olefile==0.44 \
-    Pillow==4.2.1 \
     protobuf==3.5.1 \
     pyparsing==2.2.0 \
     python-dateutil==2.6.1 \
