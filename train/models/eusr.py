@@ -19,6 +19,7 @@ tf.flags.DEFINE_float('eusr_learning_rate_decay', 0.5, 'Learning rate decay fact
 tf.flags.DEFINE_integer('eusr_learning_rate_decay_steps', 200000, 'The number of training steps to perform learning rate decay.')
 
 def create_model():
+  print('lol')
   return EUSR()
 
 class EUSR(BaseModel):
@@ -247,7 +248,7 @@ class EUSR(BaseModel):
         x = tf.case(pred_fn_pairs, exclusive=True)
       
       # post-process
-      output_list = x
+      put_list = x
       output_list = self._mean_inverse_shift(output_list)
     
     return output_list

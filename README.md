@@ -1,6 +1,6 @@
 # 4PP-EUSR
 Four-pass perceptual super-resolution with enhanced upscaling
-(runs in test)
+
 
 ## Introduction
 This repository contains a TensorFlow-based implementation of **[4PP-EUSR ("Deep learning-based image super-resolution considering quantitative and perceptual quality")](http://arxiv.org/abs/1809.04789)**, which considers both the quantitative (e.g., PSNR) and perceptual quality (e.g., NIQE) of the upscaled images.

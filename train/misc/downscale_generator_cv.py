@@ -32,7 +32,7 @@ def main(unused_argv):
     image_height, image_width = image.shape[0:2]
     image = cv.resize(image, (image_width // FLAGS.scale, image_height // FLAGS.scale), interpolation=cv.INTER_CUBIC)
     cv.imwrite(output_path, image)
-
+    tf.logging.info('testing')
   # finalize
   tf.logging.info('finished')
 

@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-tk=3.5.1-1 \
         git=1:2.7.4-0ubuntu1.6 
 
-
+RUN pip3 install -U pip
 #RUN apt-get install python3
 
 # install the most up to date version of python3 package manager
-RUN apt-get install libjpeg-dev -y
-RUN pip3 install freetype-py
+#RUN apt-get install libjpeg-dev -y
+#RUN pip3 install freetype-py
 #RUN pip3 install littlecms
 
 RUN pip3 install Pillow
@@ -41,10 +41,14 @@ RUN pip3 --no-cache-dir install \
     tensorflow-gpu==1.8 \
     Werkzeug==0.12.2
     
-RUN git clone https://github.com/idearibosome/tf-perceptual-eusr
+
+RUN pip3 freeze
+#RUN git clone https://github.com/idearibosome/tf-perceptual-eusr
 
 COPY . /test
 WORKDIR /test
+
+
 
 #RUN mkdir SR
 
@@ -54,4 +58,4 @@ WORKDIR /test
 
 #RUN pip3 install ai-integration
 
-ENTRYPOINT ["python3", "entrypoint.py"]
+#ENTRYPOINT ["python3", "entrypoint.py"]

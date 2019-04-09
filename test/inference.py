@@ -1,24 +1,16 @@
 import io
 import time
 import traceback
-
+import os
 import numpy as np
 import tensorflow as tf
-from adain.coral import coral
-from adain.image import load_image, prepare_image
-from adain.nn import build_vgg, build_decoder
-from adain.norm import adain
-from adain.weights import open_weights
 from scipy.misc import imsave
-
+from PIL import Image
 
 def save_image_in_memory(image, data_format='channels_first'):
-    if data_format == 'channels_first':
-        image = np.transpose(image, [1, 2, 0])  # CHW --> HWC
-    image *= 255
-    image = np.clip(image, 0, 255)
+    image = image.convert('RGB')
     imgByteArr = io.BytesIO()
-    imsave(imgByteArr, image.astype(np.uint8), 'JPEG')
+    imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
 
@@ -77,46 +69,11 @@ def initialize_model():
     alpha = 1.0
 
     graph = tf.Graph()
-    #original code start
-    
-    if (not args.use_gpu):
-        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-  
-  # load and build graph
-  with tf.Graph().as_default():
-    model_input_path = tf.placeholder(tf.string, [])
-    model_output_path = tf.placeholder(tf.string, [])
-    
-    image = tf.read_file(image)
-    image = [tf.image.decode_png(image, channels=3, dtype=tf.uint8)]
-    image = tf.cast(image, tf.float32)
-    #directly take in model instead of using --modelname
-    with tf.gfile.GFile("4pp_eusr_pirm.pb", 'rb') as f:
-      model_graph_def = tf.GraphDef()
-      model_graph_def.ParseFromString(f.read())
-    
-    model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image}, return_elements=['sr_output:0'])[0]
-    
-    model_output = model_output[0, :, :, :]
-    model_output = tf.round(model_output)
-    model_output = tf.clip_by_value(model_output, 0, 255)
-    model_output = tf.cast(model_output, tf.uint8)
-    
-    image = tf.image.encode_png(model_output)
-    write_op = tf.write_file(model_output_path, image)
-    
-    init = tf.global_variables_initializer()
-    
-    sess = tf.Session(config=tf.ConfigProto(
-        log_device_placement=False,
-        allow_soft_placement=True
-    ))
-    sess.run(init)
-  
-    #line 46, test.py^ , original code over
-
     # build the detection model graph from the saved model protobuf
-    
+    with graph.as_default():
+        image = tf.placeholder(shape=(None, 3, None, None), dtype=tf.float32)
+        content = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
+        style = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
 
         target = adain(content, style, data_format=data_format)
         weighted_target = target * alpha + (1 - alpha) * content
@@ -142,23 +99,7 @@ def initialize_model():
 
 def infer(inputs_dict):
     global data_format
-  # get image path list - original code
-  image_path_list = []
-  for root, subdirs, files in os.walk(args.input_path):
-    for filename in files:
-      if (filename.lower().endswith('.png')):
-        input_path = os.path.join(args.input_path, filename)
-        output_path = os.path.join(args.output_path, filename)
 
-        image_path_list.append([input_path, output_path])
-  print('Found %d images' % (len(image_path_list)))
-  
-  # iterate
-  for input_path, output_path in image_path_list:
-    print('- %s -> %s' % (input_path, output_path))
-    sess.run([write_op], feed_dict={model_input_path:input_path, model_output_path:output_path})
-  #original code over
-  print('Done')
     # only update the negative fields if we reach the end of the function - then update successfully
     result_data = {"content-type": 'text/plain',
                    "data": None,
@@ -175,7 +116,7 @@ def infer(inputs_dict):
         preserve_color = False
 
         content_image = load_image(io.BytesIO(inputs_dict['content']), content_size, crop)
-
+        style_image = load_image(io.BytesIO(inputs_dict['style']), style_size, crop)
 
         if preserve_color:
             style_image = coral(style_image, content_image)
@@ -199,9 +140,10 @@ def infer(inputs_dict):
 
         output_img_bytes = save_image_in_memory(output[0], data_format=data_format)
 
-        result_data["content-type"] = 'image/png'
+        result_data["content-type"] = 'image/jpeg'
         result_data["data"] = output_img_bytes
-        
+        result_data["success"] = True
+        result_data["error"] = None
 
         print('Finished inference and it took ' + str(time.time() - start))
         return result_data

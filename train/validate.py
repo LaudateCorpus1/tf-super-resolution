@@ -90,9 +90,10 @@ def main(unused_argv):
       tf_image = tf.clip_by_value(tf_image, 0, 255)
       tf_image = tf.cast(tf_image, tf.uint8)
       
-      tf_image_png = tf.image.encode_png(tf_image)
-      tf_image_save_op = tf.write_file(tf_image_save_path, tf_image_png)
-
+      tf_image_png = tf.image.encode_png(tf_image)#it's a string tensor(?)
+#      tf_image_save_op = tf.write_file(tf_image_save_path, tf_image_png)
+      tf_image_save_op = tf.print("lol")
+      tf.print("lol")
       tf_image_init = tf.global_variables_initializer()
       tf_image_session = tf.Session(config=tf.ConfigProto(
           device_count={'GPU': 0}
