@@ -49,7 +49,7 @@ def initialize_model():
                 #image = tf.read_file(inputs_dict["image"])
                 image = inputs_dict["image"]
                 print("initial image ",image)
-                image = image*4
+                #image = image*4
                 print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
                 print("post decode ",image)
@@ -106,7 +106,7 @@ def initialize_model():
                 print(data)
                 sess.run(init)
         #end test2 code
-                print('Initialized model')
+                #print('Initialized model')
 
     
 
