@@ -53,7 +53,7 @@ def initialize_model():
                 print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
                 print("post decode ",image)
-                image = tf.reshape(image,[233,19,1,1])
+                image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
                 #image = tf.cast(image, tf.float32)
                 #image = tf.read_file(model_input_path)
