@@ -4,16 +4,22 @@ import traceback
 import os
 import numpy as np
 import tensorflow as tf
-from scipy.misc import imsave
+from scipy.misc import imsave, imread
+#from scipy import imageio
 from PIL import Image
-
+import ai_integration
 def save_image_in_memory(image, data_format='channels_first'):
     image = image.convert('RGB')
     imgByteArr = io.BytesIO()
     imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
-
+def convert_to_png(image):
+    #image = image.convert('RGB')
+    imgByteArr = io.BytesIO()
+    imsave(imgByteArr, image, 'PNG')
+    imgByteArr = imgByteArr.getvalue()
+    return imgByteArr
 
 vgg = None
 encoder = None
@@ -27,129 +33,135 @@ persistent_session = None
 data_format = 'channels_first'
 
 
-def _build_graph(vgg_weights, decoder_weights, alpha, data_format):
-    if data_format == 'channels_first':
-        image = tf.placeholder(shape=(None, 3, None, None), dtype=tf.float32)
-        content = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
-        style = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
-    else:
-        image = tf.placeholder(shape=(None, None, None, 3), dtype=tf.float32)
-        content = tf.placeholder(shape=(1, None, None, 512), dtype=tf.float32)
-        style = tf.placeholder(shape=(1, None, None, 512), dtype=tf.float32)
-
-    target = adain(content, style, data_format=data_format)
-    weighted_target = target * alpha + (1 - alpha) * content
-
-    with open_weights(vgg_weights) as w:
-        vgg = build_vgg(image, w, data_format=data_format)
-        encoder = vgg['conv4_1']
-
-    if decoder_weights:
-        with open_weights(decoder_weights) as w:
-            decoder = build_decoder(weighted_target, w, trainable=False,
-                                    data_format=data_format)
-    else:
-        decoder = build_decoder(weighted_target, None, trainable=False,
-                                data_format=data_format)
-
-    return image, content, style, target, encoder, decoder
-
-
 def initialize_model():
-    global vgg
-    global encoder
-    global decoder
-    global target
-    global weighted_target
-    global image
-    global content
-    global style
-    global persistent_session
-    global data_format
-    alpha = 1.0
+    while True:
+        with ai_integration.get_next_input(inputs_schema={
+            "image": {
+                "type": "image"
+            }
+        }) as inputs_dict:
+        #test2 code start
+            print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
+            with tf.Graph().as_default():
+                model_input_path = tf.placeholder(tf.string, [])
+                model_output_path = tf.placeholder(tf.string, [])
+                data = tf.placeholder(tf.string,shape=[])
+                #image = tf.read_file(inputs_dict["image"])
+                image = inputs_dict["image"]
+                print("initial image ",image)
+                image = image*4
+                print("post *4 ",image)
+                image = tf.io.decode_raw(image,out_type = tf.float32)
+                print("post decode ",image)
+                image = tf.reshape(image,[233,19,1,1])
+                print("post reshape",image)
+                #image = tf.cast(image, tf.float32)
+                #image = tf.read_file(model_input_path)
+                #image = inputs_dict["image"]
+                #image = [tf.image.decode_png(image, channels=3, dtype=tf.uint8)]
+                
+                
+                #image = imread(image, mode='RGB') 
+                #image = convert_to_png(image)
+                print(image)
+                #image = tf.cast(image, tf.float32)
+                print(image)
+               # print(io.BytesIO(inputs_dict['content'])
+                #image = image.astype(np.float32)
+                #image = tf.reshape(image,[600,400,3]) 
+                #image /= 255
+                with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
+                    model_graph_def = tf.GraphDef()#example
+                    model_graph_def.ParseFromString(f.read())
+     
+                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image}, return_elements=['sr_output:0'])[0]
+                print(model_output)
+                model_output = model_output[0, :, :, :]
+                model_output = tf.round(model_output)
+                model_output = tf.clip_by_value(model_output, 0, 255)
+                model_output = tf.cast(model_output, tf.uint8)
+                print(model_output)
+                image = tf.image.encode_png(model_output)#RIGHT. HERE.
+    #image = tf.image.random_brightness(image)
+    
+    #image = tf.image.encode_png(image)
+                write_op = tf.write_file(model_output_path, image)
+                image = tf.image.adjust_saturation(tf.io.decode_png(image),float(100))
+    #experiment time
+                print(image)
+    #image = tf.io.decode_png(image)
+    #image = tf.image.encode_jpeg(image)
+                print(image)
+    #ttt = image.eval()
+                init = tf.global_variables_initializer()
+                config = tf.ConfigProto()
+                config.gpu_options.per_process_gpu_memory_fraction = 0.12
+                tf.print(image)
+                sess = tf.Session(config=tf.ConfigProto(
+                    log_device_placement=False,
+                    allow_soft_placement=True
+                ))
+                print("post sess declare")
 
-    graph = tf.Graph()
-    # build the detection model graph from the saved model protobuf
-    with graph.as_default():
-        image = tf.placeholder(shape=(None, 3, None, None), dtype=tf.float32)
-        content = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
-        style = tf.placeholder(shape=(1, 512, None, None), dtype=tf.float32)
+                print(data)
+                sess.run(init)
+        #end test2 code
+                print('Initialized model')
 
-        target = adain(content, style, data_format=data_format)
-        weighted_target = target * alpha + (1 - alpha) * content
+    
 
-        with open_weights('models/vgg19_weights_normalized.h5') as w:
-            vgg = build_vgg(image, w, data_format=data_format)
-            encoder = vgg['conv4_1']
+            # only update the negative fields if we reach the end of the function - then update successfully
+                result_data = {"content-type": 'text/plain',
+                               "data": None,
+                               "success": False,
+                               "error": None}
 
-        with open_weights('models/decoder_weights.h5') as w:
-            decoder = build_decoder(weighted_target, w, trainable=False, data_format=data_format)
+                image_path_list = []
+                image_byte_list = []
+                
+                #for root, subdirs, files in os.walk('LR'):
+                   # for filename in files:
+                   #     if (filename.lower().endswith('.png')):
+                   #         input_path = os.path.join('LR', filename)
+                    #        output_path = os.path.join('SR', filename)
+                    #        image_path_list.append([input_path, output_path])
+                #print('Found %d images' % (len(image_path_list)))
+  #global data_format
+  # iterate
+                #if image_path_list != []:
+                   # for input_path, output_path in image_path_list:
+                output_path = os.path.join('SR', 'test.png')
+                input_path = os.path.join('LR', 'bleh.png')
+                print('- %s -> %s' % ('', 'SR/test.png'))
+                sess.run([write_op], feed_dict={model_input_path:input_path, model_output_path:output_path})
+                file = Image.open(output_path,'r')
+                imgbytes = save_image_in_memory(file)
+     
+                print(imgbytes)
+                output_img_bytes = imgbytes
+                print('Done')
+                result_data["data"] = output_img_bytes
+ #   image_byte_list.append(imgbytes)
+    #print(imgbytes)
+    #test=sess.run()
+    #print(test)
+    #sess.run([toot],feed_dict={data:image})
+    #with sess.as_default():
+        #print(image.eval())
+                
+                result_data["content-type"] = 'image/jpeg'
+                result_data["success"] = True
+                result_data["error"] = None
+                os.remove(output_path)
+                print('Finished inference')
+                ai_integration.send_result(result_data)
+                #except Exception as err:
+                  #  print('image path is literally empty wth')
+                   # result_data["error"] = 'failed'
+                   # ai_integration.send_result(result_data)
+                
 
-        # the default session behavior is to consume the entire GPU RAM during inference!
-        config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.12
-
-        # the persistent session across function calls exposed to external code interfaces
-        persistent_session = tf.Session(graph=graph, config=config)
-
-        persistent_session.run(tf.global_variables_initializer())
-
-    print('Initialized model')
-
-
-def infer(inputs_dict):
-    global data_format
-
-    # only update the negative fields if we reach the end of the function - then update successfully
-    result_data = {"content-type": 'text/plain',
-                   "data": None,
-                   "success": False,
-                   "error": None}
-
-    try:
-        print('Starting inference')
-        start = time.time()
-
-        content_size = 512
-        style_size = 512
-        crop = False
-        preserve_color = False
-
-        content_image = load_image(io.BytesIO(inputs_dict['content']), content_size, crop)
-        style_image = load_image(io.BytesIO(inputs_dict['style']), style_size, crop)
-
-        if preserve_color:
-            style_image = coral(style_image, content_image)
-        style_image = prepare_image(style_image)
-        content_image = prepare_image(content_image)
-        style_feature = persistent_session.run(encoder, feed_dict={
-            image: style_image[np.newaxis, :]
-        })
-        content_feature = persistent_session.run(encoder, feed_dict={
-            image: content_image[np.newaxis, :]
-        })
-        target_feature = persistent_session.run(target, feed_dict={
-            content: content_feature,
-            style: style_feature
-        })
-
-        output = persistent_session.run(decoder, feed_dict={
-            content: content_feature,
-            target: target_feature
-        })
-
-        output_img_bytes = save_image_in_memory(output[0], data_format=data_format)
-
-        result_data["content-type"] = 'image/jpeg'
-        result_data["data"] = output_img_bytes
-        result_data["success"] = True
-        result_data["error"] = None
-
-        print('Finished inference and it took ' + str(time.time() - start))
-        return result_data
-
-
-    except Exception as err:
-        traceback.print_exc()
-        result_data["error"] = traceback.format_exc()
-        return result_data
+                
+                
+            
+            
