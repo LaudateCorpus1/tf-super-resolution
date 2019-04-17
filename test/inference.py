@@ -34,21 +34,27 @@ data_format = 'channels_first'
 
 
 def initialize_model():
-    print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
-    with tf.Graph().as_default():
-        model_input_path = tf.placeholder(tf.string, [])
-        model_output_path = tf.placeholder(tf.string, [])
-        data = tf.placeholder(tf.string,shape=[])
+    while True:
+        with ai_integration.get_next_input(inputs_schema={
+            "image": {
+                "type": "image"
+            }
+        }) as inputs_dict:
+        #test2 code start
+            print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
+            with tf.Graph().as_default():
+                model_input_path = tf.placeholder(tf.string, [])
+                model_output_path = tf.placeholder(tf.string, [])
+                data = tf.placeholder(tf.string,shape=[])
                 #image = tf.read_file(inputs_dict["image"])
-        image = inputs_dict["image"]
-        print("initial image ",image)
-        image = image*256
-        print("post *4 ",image)
-        image = tf.io.decode_raw(image,out_type = tf.float32)
-        print("post decode ",image)
-        image /= 256
-        image = tf.reshape(image,[-1,1,1,1])
-        print("post reshape",image)
+                image = inputs_dict["image"]
+                print("initial image ",image)
+                image = image*4
+                print("post *4 ",image)
+                image = tf.io.decode_raw(image,out_type = tf.float32)
+                print("post decode ",image)
+                image = tf.reshape(image,[-1,1,1,1])
+                print("post reshape",image)
                 #image = tf.cast(image, tf.float32)
                 #image = tf.read_file(model_input_path)
                 #image = inputs_dict["image"]
@@ -57,58 +63,50 @@ def initialize_model():
                 
                 #image = imread(image, mode='RGB') 
                 #image = convert_to_png(image)
-        print(image)
+                print(image)
                 #image = tf.cast(image, tf.float32)
-        print(image)
+                print(image)
                # print(io.BytesIO(inputs_dict['content'])
                 #image = image.astype(np.float32)
                 #image = tf.reshape(image,[600,400,3]) 
                 #image /= 255
-        with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
-            model_graph_def = tf.GraphDef()#example
-            model_graph_def.ParseFromString(f.read())
+                with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
+                    model_graph_def = tf.GraphDef()#example
+                    model_graph_def.ParseFromString(f.read())
      
-        model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image}, return_elements=['sr_output:0'])[0]
-        print(model_output)
-        model_output = model_output[0, :, :, :]
-        model_output = tf.round(model_output)
-        model_output = tf.clip_by_value(model_output, 0, 255)
-        model_output = tf.cast(model_output, tf.uint8)
-        print(model_output)
-        image = tf.image.encode_png(model_output)#RIGHT. HERE.
+                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image}, return_elements=['sr_output:0'])[0]
+                print(model_output)
+                model_output = model_output[0, :, :, :]
+                model_output = tf.round(model_output)
+                model_output = tf.clip_by_value(model_output, 0, 255)
+                model_output = tf.cast(model_output, tf.uint8)
+                print(model_output)
+                image = tf.image.encode_png(model_output)#RIGHT. HERE.
     #image = tf.image.random_brightness(image)
     
     #image = tf.image.encode_png(image)
-        write_op = tf.write_file(model_output_path, image)
-        image = tf.image.adjust_saturation(tf.io.decode_png(image),float(100))
+                write_op = tf.write_file(model_output_path, image)
+                image = tf.image.adjust_saturation(tf.io.decode_png(image),float(100))
     #experiment time
-        print(image)
+                print(image)
     #image = tf.io.decode_png(image)
     #image = tf.image.encode_jpeg(image)
-        print(image)
+                print(image)
     #ttt = image.eval()
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.12
-        tf.print(image)
-        sess = tf.Session(config=tf.ConfigProto(
-            log_device_placement=False,
-            allow_soft_placement=True
-        ))
-        print("post sess declare")
+                init = tf.global_variables_initializer()
+                config = tf.ConfigProto()
+                config.gpu_options.per_process_gpu_memory_fraction = 0.12
+                tf.print(image)
+                sess = tf.Session(config=tf.ConfigProto(
+                    log_device_placement=False,
+                    allow_soft_placement=True
+                ))
+                print("post sess declare")
 
-        print(data)
-        sess.run(init)
+                print(data)
+                sess.run(init)
         #end test2 code
-    while True:
-        with ai_integration.get_next_input(inputs_schema={
-            "image": {
-                "type": "image"
-            }
-        }) as inputs_dict:
-        #test2 code start
-            
-                #print('Initialized model')
+                print('Initialized model')
 
     
 
@@ -165,5 +163,4 @@ def initialize_model():
 
                 
                 
-            
             
