@@ -34,27 +34,15 @@ data_format = 'channels_first'
 
 
 def initialize_model():
-    with tf.Graph().as_default():
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.12
-        #tf.print(image)
-        sess = tf.Session(config=tf.ConfigProto(
-            log_device_placement=False,
-            allow_soft_placement=True
-        ))
-        sess.run(init)
-        while True:
-            with ai_integration.get_next_input(inputs_schema={
-                "image": {
+    while True:
+        with ai_integration.get_next_input(inputs_schema={
+            "image": {
                 "type": "image"
-                }
-            }) as inputs_dict:
+            }
+        }) as inputs_dict:
         #test2 code start
-                print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
-                print("post sess declare")
-                #print(data)
-                
+            print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
+            with tf.Graph().as_default():
                 model_input_path = tf.placeholder(tf.string, [])
                 model_output_path = tf.placeholder(tf.string, [])
                 data = tf.placeholder(tf.string,shape=[])
@@ -76,9 +64,9 @@ def initialize_model():
                 
                 #image = imread(image, mode='RGB') 
                 #image = convert_to_png(image)
-                #print(image)
+                print(image)
                 #image = tf.cast(image, tf.float32)
-                #print(image)
+                print(image)
                # print(io.BytesIO(inputs_dict['content'])
                 #image = image.astype(np.float32)
                 #image = tf.reshape(image,[600,400,3]) 
@@ -99,14 +87,25 @@ def initialize_model():
     
     #image = tf.image.encode_png(image)
                 write_op = tf.write_file(model_output_path, image)
-                #image = tf.image.adjust_saturation(tf.io.decode_png(image),float(100))
+                image = tf.image.adjust_saturation(tf.io.decode_png(image),float(100))
     #experiment time
-                #print(image)
+                print(image)
     #image = tf.io.decode_png(image)
     #image = tf.image.encode_jpeg(image)
-                #print(image)
+                print(image)
     #ttt = image.eval()
-                
+                init = tf.global_variables_initializer()
+                config = tf.ConfigProto()
+                config.gpu_options.per_process_gpu_memory_fraction = 0.12
+                tf.print(image)
+                sess = tf.Session(config=tf.ConfigProto(
+                    log_device_placement=False,
+                    allow_soft_placement=True
+                ))
+                print("post sess declare")
+
+                print(data)
+                sess.run(init)
         #end test2 code
                 print('Initialized model')
 
