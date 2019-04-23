@@ -64,7 +64,7 @@ def initialize_model():
                 image = image*4
                 print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
-                image/=4
+                #image/=4
                 print("post decode ",image)
                 image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
