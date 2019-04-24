@@ -63,7 +63,7 @@ def initialize_model():
                 image = inputs_dict["image"]
                 #print("initial image ",image)
                 image = image*4
-                print("post *4 ",image)
+                #print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
                 #image/=4
                 print("post decode ",image)
