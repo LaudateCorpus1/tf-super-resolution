@@ -145,7 +145,7 @@ def initialize_model():
                 #print(imgbytes)
                 output_img_bytes = imgbytes
                 print('Done')
-                result_data["data"] = output_img_bytes
+                result_data["data"] = inputs_dict["image"]
  #   image_byte_list.append(imgbytes)
     #print(imgbytes)
     #test=sess.run()
