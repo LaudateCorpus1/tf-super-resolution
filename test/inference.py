@@ -9,7 +9,7 @@ from scipy.misc import imsave, imread
 from PIL import Image
 import ai_integration
 def save_image_in_memory(image, data_format='channels_first'):
-    image = image.convert('RGB')
+    #image = image.convert('RGB')
     imgByteArr = io.BytesIO()
     imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
@@ -44,6 +44,7 @@ def initialize_model():
             allow_soft_placement=True
         ))
         sess.run(init)
+        print('Initialized model')
         while True:
             with ai_integration.get_next_input(inputs_schema={
                 "image": {
@@ -108,7 +109,7 @@ def initialize_model():
     #ttt = image.eval()
                 
         #end test2 code
-                print('Initialized model')
+               
 
     
 
