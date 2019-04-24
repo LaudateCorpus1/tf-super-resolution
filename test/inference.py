@@ -12,7 +12,7 @@ import ai_integration
 def save_image_in_memory(image, data_format='channels_first'):
     #image = image.convert('RGB')
     imgByteArr = io.BytesIO()
-    imsave(imgByteArr, image, 'JPEG')
+    imsave(imgByteArr, image, 'PNG')
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
 def convert_to_png(image):
@@ -140,13 +140,14 @@ def initialize_model():
                 print('- %s -> %s' % ('', output_path))
                 sess.run([write_op], feed_dict={model_input_path:input_path, model_output_path:output_path})
                 file = Image.open(output_path,'r')
-                #imgbytes = save_image_in_memory(file)
+                imgbytes = save_image_in_memory(file)
      
                 #print(imgbytes)
-                #output_img_bytes = imgbytes
+                output_img_bytes = imgbytes
                 print('Done')
 #at least we know it works properly if the image is proper now                result_data["data"] = inputs_dict["image"]
-                result_data["data"] = file#testing just this meme for testing
+                #result_data["data"] = file#testing just this meme for testing, it doesnt work
+                result_data["data"] = output_img_bytes
  #   image_byte_list.append(imgbytes)
     #print(imgbytes)
     #test=sess.run()
