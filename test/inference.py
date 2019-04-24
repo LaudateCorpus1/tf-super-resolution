@@ -52,7 +52,7 @@ def initialize_model():
                 }
             }) as inputs_dict:
         #test2 code start
-                print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
+                #print(tf.io.decode_raw(inputs_dict["image"],out_type = tf.uint8))
                 print("post sess declare")
                 #print(data)
                 
@@ -61,7 +61,7 @@ def initialize_model():
                 data = tf.placeholder(tf.string,shape=[])
                 #image = tf.read_file(inputs_dict["image"])
                 image = inputs_dict["image"]
-                print("initial image ",image)
+                #print("initial image ",image)
                 image = image*4
                 print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
@@ -89,12 +89,12 @@ def initialize_model():
                     model_graph_def.ParseFromString(f.read())
      
                 model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image}, return_elements=['sr_output:0'])[0]
-                print(model_output)
+                #print(model_output)
                 model_output = model_output[0, :, :, :]
                 model_output = tf.round(model_output)
                 model_output = tf.clip_by_value(model_output, 0, 255)
                 model_output = tf.cast(model_output, tf.uint8)
-                print(model_output)
+                #print(model_output)
                 image = tf.image.encode_png(model_output)#RIGHT. HERE.
     #image = tf.image.random_brightness(image)
     
@@ -140,7 +140,7 @@ def initialize_model():
                 file = Image.open(output_path,'r')
                 imgbytes = save_image_in_memory(file)
      
-                print(imgbytes)
+                #print(imgbytes)
                 output_img_bytes = imgbytes
                 print('Done')
                 result_data["data"] = output_img_bytes
@@ -166,4 +166,3 @@ def initialize_model():
 
                 
                 
-            
