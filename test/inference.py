@@ -2,6 +2,7 @@ import io
 import time
 import traceback
 import os
+import random
 import numpy as np
 import tensorflow as tf
 from scipy.misc import imsave, imread
@@ -65,7 +66,7 @@ def initialize_model():
                 image = image*4
                 #print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
-                #image/=4
+                #image/=4#does ssmth idk yet con
                 print("post decode ",image)
                 image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
@@ -133,9 +134,10 @@ def initialize_model():
   # iterate
                 #if image_path_list != []:
                    # for input_path, output_path in image_path_list:
-                output_path = os.path.join('SR', 'test.png')
+                out = 'dummy.png'
+                output_path = os.path.join('SR', out)
                 input_path = os.path.join('LR', 'bleh.png')
-                print('- %s -> %s' % ('', 'SR/test.png'))
+                print('- %s -> %s' % ('', output_path))
                 sess.run([write_op], feed_dict={model_input_path:input_path, model_output_path:output_path})
                 file = Image.open(output_path,'r')
                 imgbytes = save_image_in_memory(file)
