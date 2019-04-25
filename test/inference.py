@@ -12,7 +12,7 @@ import ai_integration
 def save_image_in_memory(image, data_format='channels_first'):
     #image = image.convert('RGB')
     imgByteArr = io.BytesIO()
-    imsave(imgByteArr, image, 'PNG')
+    imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
 def convert_to_png(image):
@@ -66,7 +66,7 @@ def initialize_model():
                 image = image*4
                 #print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
-                #image/=4#does ssmth idk yet con
+                image/=4#does ssmth idk yet con
                 print("post decode ",image)
                 image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
