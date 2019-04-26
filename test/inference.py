@@ -78,7 +78,7 @@ def initialize_model():
                 #image = tf.io.decode_jpeg(image)
                 #image/=4#does ssmth idk yet con
                 print("post decode ",image)
-                image = tf.reshape(image,[-1,19,1,1])
+                image = tf.reshape(image,[1,-1,1,1])
                 print("post reshape",image)
                 image = tf.cast(image, tf.float32)
                 #image = tf.cast(image, tf.float32)
