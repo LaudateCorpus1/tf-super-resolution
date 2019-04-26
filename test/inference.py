@@ -1,3 +1,11 @@
+# this copy is the one that works but doesnt work. returns a dot.
+#editing to put placeholders in init
+#running, copy 4(?) is this and it works
+#trying to delete as def
+#decode jpeg makes allocation error, trying allocation meme
+#changed allocated memory to 10% to see wha thappens 
+#lmao nothing happened, trying allow growth to see what happens
+#lol here goes my mac
 import io
 import time
 import traceback
@@ -38,7 +46,10 @@ def initialize_model():
     with tf.Graph().as_default():
         init = tf.global_variables_initializer()
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.12
+        model_input_path = tf.placeholder(tf.string, [])
+        model_output_path = tf.placeholder(tf.string, [])
+        data = tf.placeholder(tf.string,shape=[])
+        config.gpu_options.allow_growth = True
         #tf.print(image)
         sess = tf.Session(config=tf.ConfigProto(
             log_device_placement=False,
@@ -57,19 +68,19 @@ def initialize_model():
                 print("post sess declare")
                 #print(data)
                 
-                model_input_path = tf.placeholder(tf.string, [])
-                model_output_path = tf.placeholder(tf.string, [])
-                data = tf.placeholder(tf.string,shape=[])
+                
                 #image = tf.read_file(inputs_dict["image"])
                 image = inputs_dict["image"]
                 #print("initial image ",image)
                 image = image*4
                 #print("post *4 ",image)
                 image = tf.io.decode_raw(image,out_type = tf.float32)
-                image/=4#does ssmth idk yet con
+                #image = tf.io.decode_jpeg(image)
+                #image/=4#does ssmth idk yet con
                 print("post decode ",image)
-                image = tf.reshape(image,[-1,1,1,1])
+                image = tf.reshape(image,[-1,19,1,1])
                 print("post reshape",image)
+                image = tf.cast(image, tf.float32)
                 #image = tf.cast(image, tf.float32)
                 #image = tf.read_file(model_input_path)
                 #image = inputs_dict["image"]
