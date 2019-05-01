@@ -50,6 +50,10 @@ def initialize_model():
         model_output_path = tf.placeholder(tf.string, [])
         data = tf.placeholder(tf.string,shape=[])
         config.gpu_options.allow_growth = True
+        #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+
+
+        #config.gpu_options.per_process_gpu_memory_fraction = 0.8
         #tf.print(image)
         sess = tf.Session(config=tf.ConfigProto(
             log_device_placement=False,
@@ -75,12 +79,13 @@ def initialize_model():
                 #image = image*4
                 #print("post *4 ",image)
                 #image = tf.io.decode_raw(image,out_type = tf.float32)
-                image = tf.io.decode_jpeg(image)
+                #image = tf.io.decode_jpeg(image,channels = 3)
+                image = [tf.io.decode_image(image,dtype=tf.float32,channels = 3)]
                 #image/=4#does ssmth idk yet con
-                print("post decode ",image)
-                image = tf.reshape(image,[1,-1,1,1])
+                #print("post decode ",image)
+                #image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
-                image = tf.cast(image, tf.float32)
+                #image = tf.cast(image, tf.float32)
                 #image = tf.cast(image, tf.float32)
                 #image = tf.read_file(model_input_path)
                 #image = inputs_dict["image"]
@@ -125,7 +130,7 @@ def initialize_model():
 
     
 
-            # only update the negative fields if we reach the end of the function - then update successfully
+           
                 result_data = {"content-type": 'text/plain',
                                "data": None,
                                "success": False,
