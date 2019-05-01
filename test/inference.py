@@ -18,7 +18,7 @@ from scipy.misc import imsave, imread
 from PIL import Image
 import ai_integration
 def save_image_in_memory(image, data_format='channels_first'):
-    #image = image.convert('RGB')
+    image = image.convert('RGB')
     imgByteArr = io.BytesIO()
     imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
@@ -49,7 +49,8 @@ def initialize_model():
         model_input_path = tf.placeholder(tf.string, [])
         model_output_path = tf.placeholder(tf.string, [])
         data = tf.placeholder(tf.string,shape=[])
-        config.gpu_options.allow_growth = True
+        #config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = 0.12
         #tf.print(image)
         sess = tf.Session(config=tf.ConfigProto(
             log_device_placement=False,
@@ -75,10 +76,11 @@ def initialize_model():
                 #image = image*4
                 #print("post *4 ",image)
                 #image = tf.io.decode_raw(image,out_type = tf.float32)
-                image = tf.io.decode_jpeg(image)
+                #image = tf.io.decode_jpeg(image,channels = 3)
+                image = [tf.io.decode_image(image,dtype=tf.uint8,channels = 3)]
                 #image/=4#does ssmth idk yet con
-                print("post decode ",image)
-                image = tf.reshape(image,[1,-1,1,1])
+                #print("post decode ",image)
+                #image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
                 image = tf.cast(image, tf.float32)
                 #image = tf.cast(image, tf.float32)
@@ -125,7 +127,7 @@ def initialize_model():
 
     
 
-            # only update the negative fields if we reach the end of the function - then update successfully
+           
                 result_data = {"content-type": 'text/plain',
                                "data": None,
                                "success": False,
