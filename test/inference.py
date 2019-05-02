@@ -6,6 +6,8 @@
 #changed allocated memory to 10% to see wha thappens 
 #lmao nothing happened, trying allow growth to see what happens
 #lol here goes my mac
+#decided to try to make it work again
+#should backup before push
 import io
 import time
 import traceback
@@ -76,11 +78,11 @@ def initialize_model():
                 #print("post *4 ",image)
                 #image = tf.io.decode_raw(image,out_type = tf.float32)
                 #image = tf.io.decode_jpeg(image)
-                #image = tf.io.decode_jpeg(image,channels = 3)
+                #image = [tf.io.decode_jpeg(image,channels = 3)]
                 image = [tf.io.decode_image(image,dtype=tf.float32,channels = 3)]
                 #image/=4#does ssmth idk yet con
                 print("post decode ",image)
-                image = tf.reshape(image,[1,-1,1,1])
+                #image = tf.reshape(image,[1,-1,1,1])
                 #print("post decode ",image)
                 #image = tf.reshape(image,[-1,1,1,1])
                 print("post reshape",image)
