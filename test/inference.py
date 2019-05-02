@@ -1,37 +1,18 @@
-# this copy is the one that works but doesnt work. returns a dot.
-#editing to put placeholders in init
-#running, copy 4(?) is this and it works
-#trying to delete as def
-#decode jpeg makes allocation error, trying allocation meme
-#changed allocated memory to 10% to see wha thappens 
-#lmao nothing happened, trying allow growth to see what happens
-#lol here goes my mac
-#decided to try to make it work again
-#should backup before push
 import io
-import time
-import traceback
 import os
-import random
-import numpy as np
 import tensorflow as tf
-from scipy.misc import imsave, imread
-#from scipy import imageio
+from scipy.misc import imsave
 from PIL import Image
 import ai_integration
-def save_image_in_memory(image, data_format='channels_first'):
-    #image = image.convert('RGB')
+
+
+def save_image_in_memory(image):
     image = image.convert('RGB')
     imgByteArr = io.BytesIO()
     imsave(imgByteArr, image, 'JPEG')
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
-def convert_to_png(image):
-    #image = image.convert('RGB')
-    imgByteArr = io.BytesIO()
-    imsave(imgByteArr, image, 'PNG')
-    imgByteArr = imgByteArr.getvalue()
-    return imgByteArr
+
 vgg = None
 encoder = None
 decoder = None
@@ -42,6 +23,8 @@ content = None
 style = None
 persistent_session = None
 data_format = 'channels_first'
+
+
 def initialize_model():
     with tf.Graph().as_default():
         init = tf.global_variables_initializer()
