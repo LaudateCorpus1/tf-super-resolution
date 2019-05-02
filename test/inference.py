@@ -75,7 +75,7 @@ def initialize_model():
                 #image = image*4
                 #print("post *4 ",image)
                 #image = tf.io.decode_raw(image,out_type = tf.float32)
-                image = tf.io.decode_jpeg(image)
+                #image = tf.io.decode_jpeg(image)
                 #image = tf.io.decode_jpeg(image,channels = 3)
                 image = [tf.io.decode_image(image,dtype=tf.float32,channels = 3)]
                 #image/=4#does ssmth idk yet con
