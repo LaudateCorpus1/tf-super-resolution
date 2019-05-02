@@ -13,17 +13,6 @@ def save_image_in_memory(image):
     imgByteArr = imgByteArr.getvalue()
     return imgByteArr
 
-vgg = None
-encoder = None
-decoder = None
-target = None
-weighted_target = None
-image = None
-content = None
-style = None
-persistent_session = None
-data_format = 'channels_first'
-
 
 def initialize_model():
     with tf.Graph().as_default():
