@@ -7,7 +7,6 @@ import ai_integration
 
 
 #TODO ensure model loads only once
-#TODO run on GPU
 #TODO no temp files
 
 
@@ -32,6 +31,8 @@ def initialize_model():
             allow_soft_placement=True
         ))
         sess.run(init)
+
+
         print('Initialized model')
         while True:
             with ai_integration.get_next_input(inputs_schema={
@@ -46,7 +47,6 @@ def initialize_model():
                 with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
                     model_graph_def = tf.GraphDef()  # example
                     model_graph_def.ParseFromString(f.read())
-
                 model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image},
                                                    return_elements=['sr_output:0'])[0]
                 model_output = model_output[0, :, :, :]
