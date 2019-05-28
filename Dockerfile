@@ -42,6 +42,6 @@ COPY . /tf-perceptual-eusr/test
 
 WORKDIR /tf-perceptual-eusr/test
 
-RUN cd test && wget -nc http://mcml.yonsei.ac.kr/files/4pp_eusr/4pp_eusr_pirm.pb
+RUN cd test && wget -nc https://s3-us-west-2.amazonaws.com/deepai-opensource-codebases-models/tf-super-resolution/4pp_eusr_pirm.pb
 
 ENTRYPOINT ["python3", "test/entrypoint.py"]
