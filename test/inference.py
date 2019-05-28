@@ -41,7 +41,7 @@ def initialize_model():
             }) as inputs_dict:
                 print("post sess declare")
                 image = inputs_dict["image"]
-                image = [tf.io.decode_image(image, dtype=tf.uint8, channels=3)]
+                image = [tf.image.decode_image(image, dtype=tf.uint8, channels=3)]
                 image = tf.cast(image, tf.float32)
                 with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
                     model_graph_def = tf.GraphDef()  # example
