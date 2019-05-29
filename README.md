@@ -11,9 +11,37 @@ This model has been integrated with [ai_integration](https://github.com/deepai-o
 
 Four-pass perceptual super-resolution with enhanced upscaling
 
-## Introduction
+# Overview
+
 This repository contains a TensorFlow-based implementation of **[4PP-EUSR ("Deep learning-based image super-resolution considering quantitative and perceptual quality")](http://arxiv.org/abs/1809.04789)**, which considers both the quantitative (e.g., PSNR) and perceptual quality (e.g., NIQE) of the upscaled images.
 Our method **won the 2nd place and got the highest human opinion score for Region 2** in the [2018 PIRM Challenge on Perceptual Image Super-resolution at ECCV 2018](https://arxiv.org/abs/1809.07517).
+
+Nvidia-Docker is required to run this image.
+
+# For details see [Super Resolution](https://deepai.org/machine-learning-model/torch-srgan) on [Deep AI](https://deepai.org)
+
+# Quick Start
+
+docker pull deepaiorg/tf-super-resolution
+
+### HTTP
+```bash
+nvidia-docker run --rm -it -e MODE=http -p 5000:5000 deepaiorg/tf-super-resolution
+```
+Open your browser to localhost:5000 (or the correct IP address)
+
+### Command Line
+
+Save your image as content.jpg in the current directory.
+```bash
+nvidia-docker run --rm -it -v `pwd`:/shared -e MODE=command_line deepaiorg/tf-super-resolution --image /shared/content.jpg --output /shared/output.jpg
+```
+# Docker build
+```bash
+docker build -t tf-super-resolution .
+```
+
+## Introduction
 
 ![BSD100 - 37073](figures/bsd100_37073.png)
 ※ The perceptual index is calculated by "0.5 * ((10 - [Ma](https://sites.google.com/site/chaoma99/sr-metric)) + [NIQE](https://doi.org/10.1109/LSP.2012.2227726))", which is used in the [PIRM Challenge](https://www.pirm2018.org/PIRM-SR.html). Lower is better.
