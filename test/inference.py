@@ -14,10 +14,7 @@ def initialize_model():
             model_graph_def.ParseFromString(f.read())
 
         config.gpu_options.per_process_gpu_memory_fraction = 0.12
-        sess = tf.Session(config=tf.ConfigProto(
-            log_device_placement=False,
-            allow_soft_placement=True
-        ))
+        sess = tf.Session(config=config)
         sess.run(init)
 
         print('Initialized model')
