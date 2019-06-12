@@ -17,7 +17,7 @@ def initialize_model():
         sess = tf.Session(config=config)
         sess.run(init)
 
-        input_image_placeholder = tf.placeholder(tf.float32)
+        input_image_placeholder = tf.placeholder(tf.float32, name='input_image_placeholder')
 
         print('Initialized model')
         while True:
