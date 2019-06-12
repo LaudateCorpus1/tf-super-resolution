@@ -10,7 +10,7 @@ def initialize_model():
             model_graph_def = tf.GraphDef()
             model_graph_def.ParseFromString(f.read())
 
-        config.gpu_options.per_process_gpu_memory_fraction = 0.32
+        config.gpu_options.per_process_gpu_memory_fraction = 0.4
         sess = tf.Session(config=config)
         sess.run(init)
 
