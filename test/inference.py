@@ -17,6 +17,8 @@ def initialize_model():
         sess = tf.Session(config=config)
         sess.run(init)
 
+        input_image_placeholder = tf.placeholder(tf.float32)
+
         print('Initialized model')
         while True:
             with ai_integration.get_next_input(inputs_schema={
@@ -24,12 +26,11 @@ def initialize_model():
                     "type": "image"
                 }
             }) as inputs_dict:
-                print("post sess declare")
                 input_image = inputs_dict["image"]
                 input_image = [tf.image.decode_image(input_image, dtype=tf.uint8, channels=3)]
                 input_image = tf.cast(input_image, tf.float32)
 
-                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={},
+                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': input_image_placeholder},
                                                    return_elements=['sr_output:0'])[0]
                 model_output = model_output[0, :, :, :]
                 model_output = tf.round(model_output)
@@ -41,7 +42,7 @@ def initialize_model():
                                "success": False,
                                "error": None}
 
-                run_output = sess.run([image], feed_dict={'sr_input:0': input_image})
+                run_output = sess.run([image], feed_dict={'input_image_placeholder': input_image})
                 png_bytes = run_output[0]
                 output_img_bytes = png_bytes
                 print('Done')
