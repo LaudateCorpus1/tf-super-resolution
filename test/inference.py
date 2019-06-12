@@ -42,7 +42,7 @@ def initialize_model():
                                "success": False,
                                "error": None}
 
-                run_output = sess.run([image], feed_dict={'input_image_placeholder': input_image})
+                run_output = sess.run([image], feed_dict={'input_image_placeholder:0': input_image})
                 png_bytes = run_output[0]
                 output_img_bytes = png_bytes
                 print('Done')
