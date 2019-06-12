@@ -1,22 +1,9 @@
-import io
-import os
-import tensorflow as tf
-from scipy.misc import imsave
-from PIL import Image
 import ai_integration
+import tensorflow as tf
 
 
 # TODO ensure model loads only once
 # TODO no temp files
-
-
-def save_image_in_memory(image):
-    image = image.convert('RGB')
-    imgByteArr = io.BytesIO()
-    imsave(imgByteArr, image, 'JPEG')
-    imgByteArr = imgByteArr.getvalue()
-    return imgByteArr
-
 
 def initialize_model():
     with tf.Graph().as_default():
@@ -51,20 +38,18 @@ def initialize_model():
                 model_output = tf.round(model_output)
                 model_output = tf.clip_by_value(model_output, 0, 255)
                 model_output = tf.cast(model_output, tf.uint8)
-                image = tf.image.encode_png(model_output)
+                image = tf.image.encode_jpeg(model_output, chroma_downsampling=False)
                 result_data = {"content-type": 'text/plain',
                                "data": None,
                                "success": False,
                                "error": None}
 
                 run_output = sess.run([image], feed_dict={})
-                #print('session run output:')
-                #print(run_output)
                 png_bytes = run_output[0]
                 output_img_bytes = png_bytes
                 print('Done')
                 result_data["data"] = output_img_bytes
-                result_data["content-type"] = 'image/png'
+                result_data["content-type"] = 'image/jpeg'
                 result_data["success"] = True
                 result_data["error"] = None
                 print('Finished inference')
