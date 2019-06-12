@@ -6,8 +6,8 @@ from PIL import Image
 import ai_integration
 
 
-#TODO ensure model loads only once
-#TODO no temp files
+# TODO ensure model loads only once
+# TODO no temp files
 
 
 def save_image_in_memory(image):
@@ -35,7 +35,6 @@ def initialize_model():
         ))
         sess.run(init)
 
-
         print('Initialized model')
         while True:
             with ai_integration.get_next_input(inputs_schema={
@@ -62,9 +61,7 @@ def initialize_model():
                                "error": None}
                 out = 'dummy.png'
                 output_path = os.path.join('SR', out)
-                input_path = os.path.join('LR', 'bleh.png')
-                print('- %s -> %s' % ('', output_path))
-                sess.run([write_op], feed_dict={model_input_path: input_path, model_output_path: output_path})
+                sess.run([write_op], feed_dict={model_output_path: output_path})
                 file = Image.open(output_path, 'r')
                 imgbytes = save_image_in_memory(file)
                 output_img_bytes = imgbytes
