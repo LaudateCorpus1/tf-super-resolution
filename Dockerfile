@@ -6,7 +6,7 @@ RUN pip3 install \
     scikit-image==0.13.0 \
     scipy==0.19.1 \
     Pillow \
-    ai-integration==1.0.6
+    ai-integration==1.0.7
 COPY . /tf-perceptual-eusr
 
 WORKDIR /tf-perceptual-eusr
