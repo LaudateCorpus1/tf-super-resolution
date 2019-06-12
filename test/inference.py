@@ -57,7 +57,10 @@ def initialize_model():
                                "success": False,
                                "error": None}
 
-                (png_bytes) = sess.run([image], feed_dict={})
+                run_output  = sess.run([image], feed_dict={})
+                print('session run output:')
+                print(run_output)
+                (png_bytes) = run_output
                 output_img_bytes = png_bytes
                 print('Done')
                 result_data["data"] = output_img_bytes
