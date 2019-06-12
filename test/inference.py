@@ -22,8 +22,6 @@ def initialize_model():
     with tf.Graph().as_default():
         init = tf.global_variables_initializer()
         config = tf.ConfigProto()
-        model_input_path = tf.placeholder(tf.string, [])
-        model_output_path = tf.placeholder(tf.string, [])
         with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
             model_graph_def = tf.GraphDef()
             model_graph_def.ParseFromString(f.read())
@@ -54,22 +52,17 @@ def initialize_model():
                 model_output = tf.clip_by_value(model_output, 0, 255)
                 model_output = tf.cast(model_output, tf.uint8)
                 image = tf.image.encode_png(model_output)
-                write_op = tf.write_file(model_output_path, image)
                 result_data = {"content-type": 'text/plain',
                                "data": None,
                                "success": False,
                                "error": None}
-                out = 'dummy.png'
-                output_path = os.path.join('SR', out)
-                sess.run([write_op], feed_dict={model_output_path: output_path})
-                file = Image.open(output_path, 'r')
-                imgbytes = save_image_in_memory(file)
-                output_img_bytes = imgbytes
+
+                (png_bytes) = sess.run([image], feed_dict={})
+                output_img_bytes = png_bytes
                 print('Done')
                 result_data["data"] = output_img_bytes
-                result_data["content-type"] = 'image/jpeg'
+                result_data["content-type"] = 'image/png'
                 result_data["success"] = True
                 result_data["error"] = None
-                os.remove(output_path)
                 print('Finished inference')
                 ai_integration.send_result(result_data)
