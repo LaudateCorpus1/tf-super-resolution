@@ -1,4 +1,5 @@
 import ai_integration
+import numpy as np
 import tensorflow as tf
 
 
@@ -17,7 +18,7 @@ def initialize_model():
         sess = tf.Session(config=config)
         sess.run(init)
 
-        input_image_placeholder = tf.placeholder(tf.float32, name='input_image_placeholder')
+        input_image_bytes_placeholder = tf.placeholder(tf.float32, name='input_image_bytes_placeholder')
 
         print('Initialized model')
         while True:
@@ -26,11 +27,13 @@ def initialize_model():
                     "type": "image"
                 }
             }) as inputs_dict:
-                input_image = inputs_dict["image"]
-                input_image = [tf.image.decode_image(input_image, dtype=tf.uint8, channels=3)]
+                input_image_bytes = inputs_dict["image"]
+                input_image_bytes_np = np.frombuffer(input_image_bytes, dtype=np.uint8)
+
+                input_image = [tf.image.decode_image(input_image_bytes_placeholder, dtype=tf.uint8, channels=3)]
                 input_image = tf.cast(input_image, tf.float32)
 
-                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': input_image_placeholder},
+                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': input_image},
                                                    return_elements=['sr_output:0'])[0]
                 model_output = model_output[0, :, :, :]
                 model_output = tf.round(model_output)
@@ -42,7 +45,7 @@ def initialize_model():
                                "success": False,
                                "error": None}
 
-                run_output = sess.run([image], feed_dict={'input_image_placeholder:0': input_image})
+                run_output = sess.run([image], feed_dict={'input_image_bytes_placeholder:0': input_image_bytes_np})
                 png_bytes = run_output[0]
                 output_img_bytes = png_bytes
                 print('Done')
