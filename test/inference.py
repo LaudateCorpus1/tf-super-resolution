@@ -24,7 +24,10 @@ def initialize_model():
         config = tf.ConfigProto()
         model_input_path = tf.placeholder(tf.string, [])
         model_output_path = tf.placeholder(tf.string, [])
-        config.gpu_options.allow_growth = True
+        with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
+            model_graph_def = tf.GraphDef()
+            model_graph_def.ParseFromString(f.read())
+
         config.gpu_options.per_process_gpu_memory_fraction = 0.12
         sess = tf.Session(config=tf.ConfigProto(
             log_device_placement=False,
@@ -44,9 +47,7 @@ def initialize_model():
                 image = inputs_dict["image"]
                 image = [tf.image.decode_image(image, dtype=tf.uint8, channels=3)]
                 image = tf.cast(image, tf.float32)
-                with tf.gfile.GFile("test/4pp_eusr_pirm.pb", 'rb') as f:
-                    model_graph_def = tf.GraphDef()  # example
-                    model_graph_def.ParseFromString(f.read())
+
                 model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': image},
                                                    return_elements=['sr_output:0'])[0]
                 model_output = model_output[0, :, :, :]
