@@ -1,10 +1,6 @@
 import ai_integration
-import numpy as np
 import tensorflow as tf
 
-
-# TODO ensure model loads only once
-# TODO no temp files
 
 def initialize_model():
     with tf.Graph().as_default():
@@ -19,6 +15,16 @@ def initialize_model():
         sess.run(init)
 
         input_image_bytes_placeholder = tf.placeholder(tf.string, name='input_image_bytes_placeholder')
+        input_image = [tf.image.decode_image(input_image_bytes_placeholder, dtype=tf.uint8, channels=3)]
+        input_image = tf.cast(input_image, tf.float32)
+
+        model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': input_image},
+                                           return_elements=['sr_output:0'])[0]
+        model_output = model_output[0, :, :, :]
+        model_output = tf.round(model_output)
+        model_output = tf.clip_by_value(model_output, 0, 255)
+        model_output = tf.cast(model_output, tf.uint8)
+        output_image_op = tf.image.encode_jpeg(model_output, chroma_downsampling=False)
 
         print('Initialized model')
         while True:
@@ -29,22 +35,13 @@ def initialize_model():
             }) as inputs_dict:
                 input_image_bytes = inputs_dict["image"]
 
-                input_image = [tf.image.decode_image(input_image_bytes_placeholder, dtype=tf.uint8, channels=3)]
-                input_image = tf.cast(input_image, tf.float32)
-
-                model_output = tf.import_graph_def(model_graph_def, name='model', input_map={'sr_input:0': input_image},
-                                                   return_elements=['sr_output:0'])[0]
-                model_output = model_output[0, :, :, :]
-                model_output = tf.round(model_output)
-                model_output = tf.clip_by_value(model_output, 0, 255)
-                model_output = tf.cast(model_output, tf.uint8)
-                image = tf.image.encode_jpeg(model_output, chroma_downsampling=False)
                 result_data = {"content-type": 'text/plain',
                                "data": None,
                                "success": False,
                                "error": None}
 
-                run_output = sess.run([image], feed_dict={'input_image_bytes_placeholder:0': input_image_bytes})
+                run_output = sess.run([output_image_op],
+                                      feed_dict={'input_image_bytes_placeholder:0': input_image_bytes})
                 png_bytes = run_output[0]
                 output_img_bytes = png_bytes
                 print('Done')
